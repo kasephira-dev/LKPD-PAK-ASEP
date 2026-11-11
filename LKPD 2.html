@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LKPD JavaScript - Ocean Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        nunito: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        ocean: {
+                            deep: '#03121e',
+                            dark: '#082032',
+                            murky: '#0e3846',
+                            teal: '#1f5f68',
+                            cyan: '#3cdfff',
+                            light: '#a2e8dd',
+                            soft: '#d2f6f1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #03121e;
+            color: #e2f1f8;
+            overflow-x: hidden;
+        }
+
+        /* Murky Sea Underwater Overlay */
+        .murky-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at 50% 20%, rgba(31, 95, 104, 0.25) 0%, transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(14, 56, 70, 0.4) 0%, transparent 50%),
+                linear-gradient(180deg, rgba(8, 32, 50, 0.7) 0%, rgba(3, 18, 30, 0.95) 100%);
+            z-index: 1;
+        }
+
+        /* Rain Canvas & Bubbles Canvas */
+        #effects-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Cute Glassmorphism Card Style */
+        .cute-card {
+            background: rgba(14, 56, 70, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(60, 223, 255, 0.25);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 10, 20, 0.37);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .cute-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(60, 223, 255, 0.5);
+            box-shadow: 0 12px 40px 0 rgba(60, 223, 255, 0.15);
+        }
+
+        /* Cute Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #03121e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f5f68;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3cdfff;
+        }
+
+        /* Cute Glow Text */
+        .glow-title {
+            text-shadow: 0 0 15px rgba(60, 223, 255, 0.6);
+        }
+
+        /* Code block styling */
+        .code-block {
+            background: rgba(3, 18, 30, 0.85);
+            border: 1px solid rgba(60, 223, 255, 0.2);
+            border-radius: 16px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen">
+
+    <!-- Murky Water Filter & Effects Canvas -->
+    <div class="murky-overlay"></div>
+    <canvas id="effects-canvas"></canvas>
+
+    <!-- Main Content Container -->
+    <div class="relative z-10 max-w-5xl mx-auto px-4 py-8 md:py-12">
+        
+        <!-- Header Banner -->
+        <header class="text-center mb-10">
+            <div class="inline-flex items-center gap-2 bg-ocean-teal/40 border border-ocean-cyan/30 px-5 py-2 rounded-full mb-4 shadow-lg animate-bounce">
+                <i class="fa-solid font-bold fa-cloud-showers-heavy text-ocean-cyan text-lg"></i>
+                <span class="font-fredoka text-ocean-light font-medium tracking-wide">SMKN 1 GARUT • Dasar-Dasar PPLG</span>
+            </div>
+            
+            <!-- Identitas Siswa -->
+            <div class="bg-ocean-dark/80 border border-ocean-cyan/40 backdrop-blur-md max-w-md mx-auto p-4 rounded-2xl mb-6 shadow-xl text-center">
+                <p class="font-fredoka text-xl text-ocean-cyan font-bold"><i class="fa-solid fa-user-astronaut mr-2"></i>Hira Abiguna Ramadhan</p>
+                <p class="font-nunito text-ocean-light font-semibold text-sm mt-0.5"><i class="fa-solid fa-graduation-cap mr-2"></i>Kelas: X PPLG 2</p>
+            </div>
+
+            <h1 class="font-fredoka text-4xl md:text-6xl font-bold text-white glow-title tracking-wide mb-3">
+                LKPD 2: Input, Output & Operator 🌊
+            </h1>
+            <p class="font-nunito text-ocean-light/90 text-lg md:text-xl max-w-2xl mx-auto font-medium">
+                Kunci Jawaban & Pembahasan Lengkap JavaScript dengan Suasana Laut Biru Keruh & Hujan Syahdu 🌧️✨
+            </p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap justify-center gap-2 md:gap-3 mb-10">
+            <button onclick="switchTab('aktivitas')" id="tab-btn-aktivitas" class="tab-btn active font-fredoka px-5 py-2.5 rounded-2xl border-2 border-ocean-cyan bg-ocean-cyan text-ocean-deep font-semibold shadow-lg transition-all">
+                <i class="fa-solid fa-flask mr-2"></i>Aktivitas 1 - 9
+            </button>
+            <button onclick="switchTab('asesmen')" id="tab-btn-asesmen" class="tab-btn font-fredoka px-5 py-2.5 rounded-2xl border-2 border-ocean-cyan/30 bg-ocean-dark/70 text-ocean-light font-semibold hover:border-ocean-cyan transition-all">
+                <i class="fa-solid fa-list-check mr-2"></i>Asesmen Formatif
+            </button>
+            <button onclick="switchTab('materi')" id="tab-btn-materi" class="tab-btn font-fredoka px-5 py-2.5 rounded-2xl border-2 border-ocean-cyan/30 bg-ocean-dark/70 text-ocean-light font-semibold hover:border-ocean-cyan transition-all">
+                <i class="fa-solid fa-book-open mr-2"></i>Rangkuman & Refleksi
+            </button>
+        </div>
+
+        <!-- TAB CONTENT 1: AKTIVITAS 1-9 -->
+        <div id="tab-aktivitas" class="space-y-8">
+
+            <!-- Aktivitas 1 -->
+            <section class="cute-card p-6 md:p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="bg-ocean-cyan text-ocean-deep font-fredoka font-bold text-lg px-3 py-1 rounded-xl">01</span>
+                    <h2 class="font-fredoka text-2xl font-bold text-ocean-cyan">Aktivitas 1 - Prediksi Operator Aritmatika</h2>
+                </div>
+                <div class="space-y-4">
+                    <div class="code-block p-4 text-ocean-soft text-sm md:text-base">
+                        <span class="text-pink-400">let</span> a = <span class="text-amber-300">10</span>;<br>
+                        <span class="text-pink-400">let</span> b = <span class="text-amber-300">5</span>;<br>
+                        <span class="text-cyan-300">console</span>.log(a + b);<br>
+                        <span class="text-cyan-300">console</span>.log(a - b);<br>
+                        <span class="text-cyan-300">console</span>.log(a * b);<br>
+                        <span class="text-cyan-300">console</span>.log(a / b);
+                    </div>
+
+                    <!-- Table Hasil -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse rounded-xl overflow-hidden">
+                            <thead>
+                                <tr class="bg-ocean-teal/60 text-ocean-light font-fredoka">
+                                    <th class="p-3 border border-ocean-teal/40">Operasi</th>
+                                    <th class="p-3 border border-ocean-teal/40">Prediksi</th>
+                                    <th class="p-3 border border-ocean-teal/40">Hasil Sebenarnya</th>
+                                    <th class="p-3 border border-ocean-teal/40">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="font-nunito divide-y divide-ocean-teal/30 bg-ocean-dark/40">
+                                <tr>
+                                    <td class="p-3 border border-ocean-teal/30 font-bold">a + b</td>
+                                    <td class="p-3 border border-ocean-teal/30 text-emerald-300">15</td>
+                                    <td class="p-3 border border-ocean-teal/30 text-emerald-300 font-bold">15</td>
+                                    <td class="p-3 border border-ocean-teal/30 text-xs"><span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-lg">✅ Benar</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-ocean-teal/30 font-bold">a - b</td>
+                                    <td class="p-3 border border-ocean-teal/30 text-emerald-300">5</td>
+                                    <td class="p-3 border border-ocean-teal/30 text-emerald-300 font-bold">5</td>
+                                    <td class="p-3 border border-ocean-teal/30 text-xs"><span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-lg">✅ Benar</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-ocean-teal/30 font-bold">a * b</td>
+                                    <td class="p-3 border border-ocean-teal/30 text-emerald-300">50</td>
+                                    <td class="p-3 border border-ocean-teal/30 text-emerald-300 font-bold">50</td>
+                                    <td class="p-3 border border-ocean-teal/30 text-xs"><span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-lg">✅ Benar</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-ocean-teal/30 font-bold">a / b</td>
+                                    <td class="p-3 border border-ocean-teal/30 text-emerald-300">2</td>
+                                    <td class="p-3 border border-ocean-teal/30 text-emerald-300 font-bold">2</td>
+                                    <td class="p-3 border border-ocean-teal/30 text-xs"><span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-lg">✅ Benar</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-ocean-dark/60 p-4 rounded-xl border border-ocean-cyan/20">
+                        <p class="font-bold text-ocean-cyan mb-1">Apakah prediksi kamu benar?</p>
+                        <p class="text-ocean-light"><strong>Ya, benar sepenuhnya.</strong></p>
+                        <p class="text-sm text-ocean-light/80 mt-1"><strong>Mengapa?</strong> Karena operator aritmatika dalam JavaScript mengikuti aturan matematika dasar: <code class="bg-ocean-deep px-1.5 py-0.5 rounded text-pink-300">+</code> untuk penjumlahan, <code class="bg-ocean-deep px-1.5 py-0.5 rounded text-pink-300">-</code> untuk pengurangan, <code class="bg-ocean-deep px-1.5 py-0.5 rounded text-pink-300">*</code> untuk perkalian, dan <code class="bg-ocean-deep px-1.5 py-0.5 rounded text-pink-300">/</code> untuk pembagian.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Aktivitas 2 -->
+            <section class="cute-card p-6 md:p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="bg-ocean-cyan text-ocean-deep font-fredoka font-bold text-lg px-3 py-1 rounded-xl">02</span>
+                    <h2 class="font-fredoka text-2xl font-bold text-ocean-cyan">Aktivitas 2 - Eksperimen & Operator Modulus (%)</h2>
+                </div>
+                <div class="space-y-4">
+                    <div class="code-block p-4 text-ocean-soft text-sm md:text-base">
+                        <span class="text-pink-400">let</span> a = <span class="text-amber-300">20</span>;<br>
+                        <span class="text-pink-400">let</span> b = <span class="text-amber-300">4</span>;<br>
+                        <span class="text-cyan-300">console</span>.log(a + b); <span class="text-gray-400">// 24</span><br>
+                        <span class="text-cyan-300">console</span>.log(a - b); <span class="text-gray-400">// 16</span><br>
+                        <span class="text-cyan-300">console</span>.log(a * b); <span class="text-gray-400">// 80</span><br>
+                        <span class="text-cyan-300">console</span>.log(a / b); <span class="text-gray-400">// 5</span><br>
+                        <span class="text-cyan-300">console</span>.log(a % b); <span class="text-gray-400">// 0</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+                        <div class="bg-ocean-dark/60 p-3 rounded-xl border border-ocean-teal">
+                            <span class="text-xs text-ocean-light/70 block">a + b</span>
+                            <span class="font-bold text-lg text-ocean-cyan">24</span>
+                        </div>
+                        <div class="bg-ocean-dark/60 p-3 rounded-xl border border-ocean-teal">
+                            <span class="text-xs text-ocean-light/70 block">a - b</span>
+                            <span class="font-bold text-lg text-ocean-cyan">16</span>
+                        </div>
+                        <div class="bg-ocean-dark/60 p-3 rounded-xl border border-ocean-teal">
+                            <span class="text-xs text-ocean-light/70 block">a * b</span>
+                            <span class="font-bold text-lg text-ocean-cyan">80</span>
+                        </div>
+                        <div class="bg-ocean-dark/60 p-3 rounded-xl border border-ocean-teal">
+                            <span class="text-xs text-ocean-light/70 block">a / b</span>
+                            <span class="font-bold text-lg text-ocean-cyan">5</span>
+                        </div>
+                        <div class="bg-ocean-dark/60 p-3 rounded-xl border border-amber-400/50 col-span-2 sm:col-span-1">
+                            <span class="text-xs text-amber-300 block">a % b</span>
+                            <span class="font-bold text-lg text-amber-300">0</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-ocean-dark/60 p-4 rounded-xl border border-ocean-cyan/20">
+                        <p class="font-bold text-ocean-cyan mb-1">Apa yang kamu temukan?</p>
+                        <p class="text-ocean-light text-sm leading-relaxed">
+                            Operator <code class="bg-ocean-deep text-amber-300 px-1.5 py-0.5 rounded">%</code> dinamakan <strong>Modulus</strong>, yaitu operator untuk menghitung <strong>sisa hasil pembagian</strong>. Karena 20 dibagi 4 adalah 5 tanpa ada sisa, maka hasilnya adalah <code class="text-amber-300 font-bold">0</code>.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Aktivitas 3 -->
+            <section class="cute-card p-6 md:p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="bg-ocean-cyan text-ocean-deep font-fredoka font-bold text-lg px-3 py-1 rounded-xl">03</span>
+                    <h2 class="font-fredoka text-2xl font-bold text-ocean-cyan">Aktivitas 3 - Input dengan prompt()</h2>
+                </div>
+                <div class="space-y-4">
+                    <div class="code-block p-4 text-ocean-soft text-sm md:text-base">
+                        <span class="text-pink-400">let</span> nama = <span class="text-yellow-300">prompt</span>(<span class="text-emerald-300">"Masukkan nama:"</span>);<br>
+                        <span class="text-cyan-300">console</span>.log(nama);<br>
+                        <span class="text-pink-400">let</span> umur = <span class="text-yellow-300">prompt</span>(<span class="text-emerald-300">"Masukkan umur:"</span>);<br>
+                        <span class="text-cyan-300">console</span>.log(umur);
+                    </div>
+
+                    <div class="bg-ocean-dark/60 p-4 rounded-xl border border-ocean-cyan/20">
+                        <p class="font-bold text-ocean-cyan mb-1">Apa fungsi prompt()?</p>
+                        <p class="text-ocean-light text-sm leading-relaxed">
+                            Fungsi <code class="bg-ocean-deep text-yellow-300 px-1.5 py-0.5 rounded">prompt()</code> berguna untuk <strong>menerima masukan (input) teks dari pengguna</strong> melalui sebuah kotak dialog (pop-up) di browser. Hasil input tersebut kemudian disimpan ke dalam variabel.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Aktivitas 4 -->
+            <section class="cute-card p-6 md:p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="bg-ocean-cyan text-ocean-deep font-fredoka font-bold text-lg px-3 py-1 rounded-xl">04</span>
+                    <h2 class="font-fredoka text-2xl font-bold text-ocean-cyan">Aktivitas 4 - Menghitung Umur</h2>
+                </div>
+                <div class="space-y-4">
+                    <div class="code-block p-4 text-ocean-soft text-sm md:text-base">
+                        <span class="text-pink-400">let</span> tahunLahir = <span class="text-yellow-300">Number</span>(<span class="text-yellow-300">prompt</span>(<span class="text-emerald-300">"Masukkan tahun lahir:"</span>));<br>
+                        <span class="text-pink-400">let</span> tahunSekarang = <span class="text-amber-300">2026</span>;<br>
+                        <span class="text-pink-400">let</span> umur = tahunSekarang - tahunLahir;<br>
+                        <span class="text-cyan-300">console</span>.log(umur);
+                    </div>
+
+                    <!-- Interactive Demo Umur -->
+                    <div class="bg-ocean-dark/70 p-5 rounded-2xl border border-ocean-cyan/30">
+                        <h3 class="font-fredoka text-lg text-ocean-light mb-3">🎮 Uji Coba Langsung Hitung Umur:</h3>
+                        <div class="flex flex-col sm:flex-row gap-3 items-center">
+                            <input type="number" id="input-tahun-lahir" placeholder="Contoh: 2008" class="w-full sm:w-auto flex-1 bg-ocean-deep border border-ocean-teal rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-ocean-cyan">
+                            <button onclick="hitungUmur()" class="w-full sm:w-auto bg-ocean-cyan text-ocean-deep font-fredoka font-bold px-6 py-2.5 rounded-xl hover:bg-ocean-light transition-all">
+                                Hitung Umur
+                            </button>
+                        </div>
+                        <div id="res-umur" class="mt-3 font-bold text-ocean-cyan hidden">
+                            Umur Anda pada tahun 2026 adalah: <span id="val-umur" class="text-amber-300 text-xl">0</span> tahun 🎉
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Aktivitas 5, 6, 7 -->
+            <section class="cute-card p-6 md:p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="bg-ocean-cyan text-ocean-deep font-fredoka font-bold text-lg px-3 py-1 rounded-xl">05-07</span>
+                    <h2 class="font-fredoka text-2xl font-bold text-ocean-cyan">Mesin Kasir Mini & Warung Digital + Diskon 10%</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <p class="text-sm text-ocean-light/80">Program simulasi kasir sederhana dengan input barang, harga, jumlah, serta perhitungan diskon 10%.</p>
+                    
+                    <div class="code-block p-4 text-ocean-soft text-sm md:text-base overflow-x-auto">
+                        <span class="text-pink-400">let</span> makanan = <span class="text-yellow-300">prompt</span>(<span class="text-emerald-300">"Nama makanan:"</span>);<br>
+                        <span class="text-pink-400">let</span> harga = <span class="text-yellow-300">Number</span>(<span class="text-yellow-300">prompt</span>(<span class="text-emerald-300">"Harga:"</span>));<br>
+                        <span class="text-pink-400">let</span> jumlah = <span class="text-yellow-300">Number</span>(<span class="text-yellow-300">prompt</span>(<span class="text-emerald-300">"Jumlah:"</span>));<br><br>
+                        <span class="text-pink-400">let</span> total = harga * jumlah;<br>
+                        <span class="text-pink-400">let</span> diskon = total * <span class="text-amber-300">0.10</span>; <span class="text-gray-400">// Diskon 10%</span><br>
+                        <span class="text-pink-400">let</span> totalBayar = total - diskon;<br><br>
+                        <span class="text-cyan-300">console</span>.log(<span class="text-emerald-300">"Makanan:"</span>, makanan);<br>
+                        <span class="text-cyan-300">console</span>.log(<span class="text-emerald-300">"Total:"</span>, total);<br>
+                        <span class="text-cyan-300">console</span>.log(<span class="text-emerald-300">"Diskon:"</span>, diskon);<br>
+                        <span class="text-cyan-300">console</span>.log(<span class="text-emerald-300">"Total Bayar:"</span>, totalBayar);
+                    </div>
+
+                    <div class="bg-ocean-dark/60 p-4 rounded-xl border border-ocean-cyan/20">
+                        <p class="font-bold text-ocean-cyan mb-1">Aktivitas 6 - Think Pair Share (Mengapa butuh variabel total?)</p>
+                        <p class="text-ocean-light text-sm leading-relaxed">
+                            <strong>Jawaban:</strong> Variabel <code class="text-pink-300 font-mono">total</code> dibutuhkan untuk menyimpan hasil perkalian awal antara harga dan jumlah barang. Hal ini memudahkan kita jika ingin menggunakannya kembali untuk perhitungan selanjutnya (seperti menghitung diskon dan total bayar) tanpa harus menghitung ulang <code class="text-pink-300 font-mono">harga * jumlah</code> berkali-kali.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Aktivitas 8 -->
+            <section class="cute-card p-6 md:p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="bg-ocean-cyan text-ocean-deep font-fredoka font-bold text-lg px-3 py-1 rounded-xl">08</span>
+                    <h2 class="font-fredoka text-2xl font-bold text-ocean-cyan">Aktivitas 8 - Debugging Kode Error</h2>
+                </div>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-red-950/40 border border-red-500/40 p-4 rounded-xl">
+                            <span class="text-red-400 font-fredoka font-bold block mb-2">❌ Kode Error / Salah:</span>
+                            <div class="font-mono text-xs text-red-200">
+                                let harga = 5000;<br>
+                                let jumlah = 3;<br>
+                                let <span class="bg-red-500/30 underline decoration-wavy">total harga</span> = harga * jumlah;<br>
+                                console.log(<span class="bg-red-500/30 underline decoration-wavy">total harga</span>);
+                            </div>
+                        </div>
+                        <div class="bg-emerald-950/40 border border-emerald-500/40 p-4 rounded-xl">
+                            <span class="text-emerald-400 font-fredoka font-bold block mb-2">✅ Perbaikan Kode:</span>
+                            <div class="font-mono text-xs text-emerald-200">
+                                let harga = 5000;<br>
+                                let jumlah = 3;<br>
+                                let <span class="text-emerald-300 font-bold">totalHarga</span> = harga * jumlah;<br>
+                                console.log(<span class="text-emerald-300 font-bold">totalHarga</span>);
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-ocean-dark/60 p-4 rounded-xl border border-ocean-cyan/20 text-sm">
+                        <p class="font-bold text-ocean-cyan mb-1">Analisis Kesalahan:</p>
+                        <p class="text-ocean-light">
+                            Nama variabel <code class="text-red-300">total harga</code> menggunakan spasi. Di JavaScript, nama variabel <strong>tidak boleh mengandung spasi</strong>. Penulisan yang benar bisa menggunakan format camelCase (<code class="text-emerald-300">totalHarga</code>) atau underscore (<code class="text-emerald-300">total_harga</code>).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Aktivitas 9 -->
+            <section class="cute-card p-6 md:p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="bg-ocean-cyan text-ocean-deep font-fredoka font-bold text-lg px-3 py-1 rounded-xl">09</span>
+                    <h2 class="font-fredoka text-2xl font-bold text-ocean-cyan">Aktivitas 9 - Challenge Kalkulator Tabungan</h2>
+                </div>
+                
+                <div class="space-y-5">
+                    <p class="text-sm text-ocean-light/80">Program untuk meminta Uang Awal dan Tabungan Hari ke-1, 2, dan 3, lalu menghitung total akhirnya.</p>
+
+                    <!-- Interactive Saving Simulator -->
+                    <div class="bg-ocean-dark/80 p-5 rounded-2xl border border-ocean-cyan/40 space-y-4">
+                        <h3 class="font-fredoka text-lg text-ocean-cyan flex items-center gap-2">
+                            <i class="fa-solid fa-piggy-bank text-amber-300"></i> Simulator Kalkulator Tabungan Interactive
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                            <div>
+                                <label class="text-xs text-ocean-light/70 mb-1 block">Uang Awal (Rp):</label>
+                                <input type="number" id="tab-awal" value="10000" class="w-full bg-ocean-deep border border-ocean-teal rounded-xl p-2.5 text-white focus:outline-none focus:border-ocean-cyan text-sm">
+                            </div>
+                            <div>
+                                <label class="text-xs text-ocean-light/70 mb-1 block">Hari Ke-1 (Rp):</label>
+                                <input type="number" id="tab-h1" value="5000" class="w-full bg-ocean-deep border border-ocean-teal rounded-xl p-2.5 text-white focus:outline-none focus:border-ocean-cyan text-sm">
+                            </div>
+                            <div>
+                                <label class="text-xs text-ocean-light/70 mb-1 block">Hari Ke-2 (Rp):</label>
+                                <input type="number" id="tab-h2" value="7000" class="w-full bg-ocean-deep border border-ocean-teal rounded-xl p-2.5 text-white focus:outline-none focus:border-ocean-cyan text-sm">
+                            </div>
+                            <div>
+                                <label class="text-xs text-ocean-light/70 mb-1 block">Hari Ke-3 (Rp):</label>
+                                <input type="number" id="tab-h3" value="10000" class="w-full bg-ocean-deep border border-ocean-teal rounded-xl p-2.5 text-white focus:outline-none focus:border-ocean-cyan text-sm">
+                            </div>
+                        </div>
+
+                        <button onclick="hitungTabungan()" class="w-full bg-gradient-to-r from-ocean-cyan to-ocean-light text-ocean-deep font-fredoka font-bold py-3 rounded-xl hover:opacity-90 transition-all shadow-md">
+                            <i class="fa-solid fa-calculator mr-2"></i>Hitung Total Tabungan
+                        </button>
+
+                        <div class="bg-ocean-deep p-4 rounded-xl text-center border border-ocean-cyan/30">
+                            <span class="text-xs text-ocean-light/70 uppercase tracking-widest block mb-1">Total Tabungan Akhir</span>
+                            <span id="res-tabungan" class="text-2xl md:text-3xl font-fredoka font-bold text-amber-300">Rp 32.000</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- TAB CONTENT 2: ASESMEN FORMATIF -->
+        <div id="tab-asesmen" class="space-y-6 hidden">
+            <div class="cute-card p-6 md:p-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <i class="fa-solid fa-clipboard-question text-3xl text-ocean-cyan"></i>
+                    <div>
+                        <h2 class="font-fredoka text-2xl font-bold text-ocean-cyan">Jawaban Asesmen Formatif (Halaman 8)</h2>
+                        <p class="text-xs text-ocean-light/70">Pembahasan soal evaluasi mandiri dari lembar LKPD.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Soal 1 -->
+                    <div class="bg-ocean-dark/60 p-5 rounded-2xl border border-ocean-teal/40">
+                        <p class="font-bold text-ocean-light mb-2">1. Apa output dari: <code class="text-pink-300 font-mono">let a = 8; let b = 2; console.log(a + b);</code> ?</p>
+                        <div class="bg-ocean-deep/80 p-3 rounded-xl text-emerald-300 font-mono text-sm border border-emerald-500/30">
+                            <strong>Jawaban:</strong> 10
+                        </div>
+                        <p class="text-xs text-ocean-light/60 mt-2">Penjelasan: Nilai 8 dijumlahkan dengan 2 (8 + 2 = 10).</p>
+                    </div>
+
+                    <!-- Soal 2 -->
+                    <div class="bg-ocean-dark/60 p-5 rounded-2xl border border-ocean-teal/40">
+                        <p class="font-bold text-ocean-light mb-2">2. Apa output dari: <code class="text-pink-300 font-mono">let a = 10; let b = 3; console.log(a % b);</code> ?</p>
+                        <div class="bg-ocean-deep/80 p-3 rounded-xl text-emerald-300 font-mono text-sm border border-emerald-500/30">
+                            <strong>Jawaban:</strong> 1
+                        </div>
+                        <p class="text-xs text-ocean-light/60 mt-2">Penjelasan: Operator <code class="text-amber-300">%</code> mengambil sisa bagi. 10 dibagi 3 adalah 3 (total 9), sisa 1.</p>
+                    </div>
+
+                    <!-- Soal 3 -->
+                    <div class="bg-ocean-dark/60 p-5 rounded-2xl border border-ocean-teal/40">
+                        <p class="font-bold text-ocean-light mb-2">3. Apa fungsi <code class="text-pink-300 font-mono">prompt()</code>?</p>
+                        <div class="bg-ocean-deep/80 p-3 rounded-xl text-emerald-300 font-mono text-sm border border-emerald-500/30">
+                            <strong>Jawaban:</strong> Fungsi <code class="text-yellow-300">prompt()</code> digunakan untuk menampilkan dialog input interaktif tempat pengguna dapat memasukkan data berupa teks/string ke dalam program.
+                        </div>
+                    </div>
+
+                    <!-- Soal 4 -->
+                    <div class="bg-ocean-dark/60 p-5 rounded-2xl border border-ocean-teal/40">
+                        <p class="font-bold text-ocean-light mb-2">4. Buat program menghitung luas persegi panjang dengan panjang 10 dan lebar 5!</p>
+                        <div class="bg-ocean-deep/80 p-4 rounded-xl text-emerald-300 font-mono text-sm border border-emerald-500/30 space-y-1">
+                            <span class="text-pink-400">let</span> panjang = <span class="text-amber-300">10</span>;<br>
+                            <span class="text-pink-400">let</span> lebar = <span class="text-amber-300">5</span>;<br>
+                            <span class="text-pink-400">let</span> luas = panjang * lebar;<br>
+                            <span class="text-cyan-300">console</span>.log(luas); <span class="text-gray-400">// Hasil: 50</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT 3: MATERI & REFLEKSI -->
+        <div id="tab-materi" class="space-y-6 hidden">
+            <!-- Rangkuman Alur Pembelajaran -->
+            <div class="cute-card p-6 md:p-8">
+                <h2 class="font-fredoka text-2xl font-bold text-ocean-cyan mb-4"><i class="fa-solid fa-map-location-dot mr-2"></i>Peta Urutan Materi JavaScript</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-center text-xs">
+                    <div class="bg-ocean-dark/50 p-2.5 rounded-xl border border-ocean-teal/30 opacity-70">1. Pengenalan JS</div>
+                    <div class="bg-ocean-dark/50 p-2.5 rounded-xl border border-ocean-teal/30 opacity-70">2. Variable</div>
+                    <div class="bg-ocean-cyan text-ocean-deep font-bold p-2.5 rounded-xl border-2 border-ocean-cyan shadow-md animate-pulse">3. Input-Output (SEKARANG)</div>
+                    <div class="bg-ocean-dark/50 p-2.5 rounded-xl border border-ocean-teal/30">4. Number & String</div>
+                    <div class="bg-ocean-dark/50 p-2.5 rounded-xl border border-ocean-teal/30">5. Operator Perbandingan</div>
+                    <div class="bg-ocean-dark/50 p-2.5 rounded-xl border border-ocean-teal/30">6. Boolean</div>
+                    <div class="bg-ocean-dark/50 p-2.5 rounded-xl border border-ocean-teal/30">7. Percabangan if</div>
+                    <div class="bg-ocean-dark/50 p-2.5 rounded-xl border border-ocean-teal/30">8. if - else</div>
+                </div>
+            </div>
+
+            <!-- Refleksi & Exit Ticket -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Refleksi Pembelajaran -->
+                <div class="cute-card p-6">
+                    <h3 class="font-fredoka text-xl font-bold text-ocean-cyan mb-3"><i class="fa-solid fa-heart mr-2"></i>Refleksi Pembelajaran</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="bg-ocean-dark/60 p-3 rounded-xl border border-ocean-teal/30">
+                            <span class="font-bold text-amber-300 block">🧠 Berkesadaran:</span>
+                            <span>Saya menyadari bahwa alur Input ➔ Process ➔ Output adalah konsep inti dalam semua pemograman komputer.</span>
+                        </div>
+                        <div class="bg-ocean-dark/60 p-3 rounded-xl border border-ocean-teal/30">
+                            <span class="font-bold text-emerald-300 block">💡 Bermakna:</span>
+                            <span>Materi ini sangat berguna untuk membuat aplikasi kasir, kalkulator, dan sistem input data kehidupan nyata.</span>
+                        </div>
+                        <div class="bg-ocean-dark/60 p-3 rounded-xl border border-ocean-teal/30">
+                            <span class="font-bold text-pink-300 block">🎉 Menggembirakan:</span>
+                            <span>Bagian paling menyenangkan adalah saat melakukan tes interaktif dan memecahkan bug pada variabel!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exit Ticket -->
+                <div class="cute-card p-6">
+                    <h3 class="font-fredoka text-xl font-bold text-ocean-cyan mb-3"><i class="fa-solid fa-ticket mr-2"></i>Exit Ticket</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="bg-ocean-dark/60 p-3 rounded-xl border border-ocean-teal/30">
+                            <span class="font-bold text-ocean-cyan block">1. Yang sudah dikuasai:</span>
+                            <span>Menggunakan <code class="text-pink-300">console.log()</code>, operator aritmatika, dan konversi <code class="text-yellow-300">Number()</code>.</span>
+                        </div>
+                        <div class="bg-ocean-dark/60 p-3 rounded-xl border border-ocean-teal/30">
+                            <span class="font-bold text-ocean-cyan block">2. Yang masih membingungkan:</span>
+                            <span>Perbedaan tipe data teks (string) dan angka saat menerima input dari <code class="text-yellow-300">prompt()</code>.</span>
+                        </div>
+                        <div class="bg-ocean-dark/60 p-3 rounded-xl border border-ocean-teal/30">
+                            <span class="font-bold text-ocean-cyan block">3. Yang ingin dicoba:</span>
+                            <span>Membuat game kalkulator sederhana dengan tampilan grafis lucu!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center mt-12 text-xs text-ocean-light/50">
+            <p>© 2026 Dasar-Dasar PPLG - SMKN 1 GARUT • Murky Deep Blue Edition 🌧️ Anchor Studio</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Tab Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                if(el.id.startsWith('tab-btn')) return;
+                el.classList.add('hidden');
+            });
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-ocean-cyan', 'text-ocean-deep', 'border-ocean-cyan');
+                btn.classList.add('bg-ocean-dark/70', 'text-ocean-light', 'border-ocean-cyan/30');
+            });
+
+            const activeBtn = document.getElementById('tab-btn-' + tabId);
+            activeBtn.classList.add('bg-ocean-cyan', 'text-ocean-deep', 'border-ocean-cyan');
+            activeBtn.classList.remove('bg-ocean-dark/70', 'text-ocean-light', 'border-ocean-cyan/30');
+        }
+
+        // Demo Hitung Umur
+        function hitungUmur() {
+            const thnLahir = document.getElementById('input-tahun-lahir').value;
+            const resBox = document.getElementById('res-umur');
+            const valBox = document.getElementById('val-umur');
+            
+            if(!thnLahir) {
+                alert('Masukkan tahun lahir terlebih dahulu!');
+                return;
+            }
+
+            const umur = 2026 - parseInt(thnLahir);
+            valBox.textContent = umur;
+            resBox.classList.remove('hidden');
+        }
+
+        // Demo Hitung Tabungan
+        function hitungTabungan() {
+            const awal = parseFloat(document.getElementById('tab-awal').value) || 0;
+            const h1 = parseFloat(document.getElementById('tab-h1').value) || 0;
+            const h2 = parseFloat(document.getElementById('tab-h2').value) || 0;
+            const h3 = parseFloat(document.getElementById('tab-h3').value) || 0;
+
+            const total = awal + h1 + h2 + h3;
+            document.getElementById('res-tabungan').textContent = 'Rp ' + total.toLocaleString('id-ID');
+        }
+
+        // --- ANIMATED RAIN & SUBTLE FLOATING OCEAN BUBBLES ---
+        const canvas = document.getElementById('effects-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        // Particles arrays
+        const rainDrops = [];
+        const bubbles = [];
+
+        // Create Rain drops
+        for (let i = 0; i < 65; i++) {
+            rainDrops.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                length: Math.random() * 20 + 10,
+                speed: Math.random() * 10 + 6,
+                opacity: Math.random() * 0.4 + 0.1
+            });
+        }
+
+        // Create Ocean Bubbles
+        for (let i = 0; i < 35; i++) {
+            bubbles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 4 + 1,
+                speed: Math.random() * 1 + 0.3,
+                opacity: Math.random() * 0.5 + 0.2,
+                swing: Math.random() * 0.05
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw Rain
+            ctx.strokeStyle = 'rgba(60, 223, 255, 0.4)';
+            ctx.lineWidth = 1.2;
+            ctx.lineCap = 'round';
+
+            rainDrops.forEach(drop => {
+                ctx.beginPath();
+                ctx.moveTo(drop.x, drop.y);
+                ctx.lineTo(drop.x - 2, drop.y + drop.length);
+                ctx.stroke();
+
+                drop.y += drop.speed;
+                drop.x -= 0.5;
+
+                if (drop.y > height) {
+                    drop.y = -20;
+                    drop.x = Math.random() * width;
+                }
+            });
+
+            // Draw Bubbles
+            bubbles.forEach(bubble => {
+                ctx.beginPath();
+                ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(162, 232, 221, ${bubble.opacity})`;
+                ctx.fill();
+
+                bubble.y -= bubble.speed;
+                bubble.x += Math.sin(bubble.y * bubble.swing) * 0.5;
+
+                if (bubble.y < -10) {
+                    bubble.y = height + 10;
+                    bubble.x = Math.random() * width;
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        window.onload = function() {
+            animate();
+            hitungTabungan();
+        }
+    </script>
+</body>
+</html>
